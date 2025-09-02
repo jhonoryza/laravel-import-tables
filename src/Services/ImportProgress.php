@@ -8,6 +8,7 @@ use Jhonoryza\LaravelImportTables\Repositories\ImportRepository;
 class ImportProgress
 {
     protected string $key;
+
     protected string $connection;
 
     public function __construct(int|string $identifier)

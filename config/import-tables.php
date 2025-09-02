@@ -2,5 +2,5 @@
 
 return [
     // check file config/database.php -> redis
-    'redis-connection' => 'default'
+    'redis-connection' => 'default',
 ];

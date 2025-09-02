@@ -7,9 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class Import extends Model
 {
     const PENDING = 'pending';
+
     const PROCESSING = 'processing';
+
     const DONE = 'done';
+
     const FAILED = 'failed';
+
     const STUCK = 'stuck';
 
     protected $fillable = [
@@ -21,7 +25,7 @@ class Import extends Model
         'success_rows',
         'failed_rows',
         'success',
-        'errors'
+        'errors',
     ];
 
     protected $casts = [

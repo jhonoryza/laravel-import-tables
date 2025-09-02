@@ -2,9 +2,9 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
 use Jhonoryza\LaravelImportTables\Models\Import;
 use Jhonoryza\LaravelImportTables\Repositories\ImportRepository;
+use Tests\TestCase;
 
 uses(TestCase::class);
 
@@ -14,7 +14,7 @@ test('it can create new instance using make method', function () {
 });
 
 test('it can set custom model', function () {
-    $model = new Import();
+    $model = new Import;
     $repository = ImportRepository::make()->setModel($model);
 
     expect($repository->getModel())->toBeInstanceOf(Import::class);
@@ -57,7 +57,7 @@ test('it can get list of imports', function () {
         ->setFileName('users2.csv')
         ->save();
 
-    $repository = new ImportRepository();
+    $repository = new ImportRepository;
     $list = $repository->getList(module: 'users');
 
     expect($list)->toHaveCount(1)

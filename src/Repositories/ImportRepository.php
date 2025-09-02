@@ -9,25 +9,34 @@ use Jhonoryza\LaravelImportTables\Models\Import;
 
 class ImportRepository
 {
-    protected Model|null $model = null;
+    protected ?Model $model = null;
+
     protected string $key = '';
+
     protected string $moduleName = 'default';
+
     protected string $status = '';
+
     protected string $fileName = '';
+
     protected array $messageErrors = [];
+
     protected array $messageOk = [];
+
     protected int $totalRows = 0;
+
     protected int $totalOk = 0;
+
     protected int $totalFail = 0;
 
-    public function __construct(Model|null $model = null)
+    public function __construct(?Model $model = null)
     {
         $this->model = $model ?? null;
     }
 
     public static function make(): self
     {
-        return new self();
+        return new self;
     }
 
     public function setModel(Model $model): self
@@ -51,7 +60,7 @@ class ImportRepository
     {
         $this->resolveByKey($key);
         $this->key = $key;
- 
+
         return $this;
     }
 
@@ -95,14 +104,14 @@ class ImportRepository
         return $this;
     }
 
-    public function getModel(): Model|null
+    public function getModel(): ?Model
     {
         return $this->model;
     }
 
     public static function getList(
-        string|null $status = null,
-        string|null $module = null,
+        ?string $status = null,
+        ?string $module = null,
         int $limit = 30
     ): Collection {
         return Import::query()
@@ -110,13 +119,14 @@ class ImportRepository
             ->latest()
             ->when(
                 $status,
-                fn($query, $value) => $query->where('status', $value)
+                fn ($query, $value) => $query->where('status', $value)
             )
             ->limit($limit)
             ->get();
     }
 
-    public static function resolveProcessingStatusMoreThan(Carbon $time): void {
+    public static function resolveProcessingStatusMoreThan(Carbon $time): void
+    {
         Import::query()
             ->latest()
             ->where('status', Import::PROCESSING)
@@ -131,7 +141,7 @@ class ImportRepository
             });
     }
 
-    public static function getById($importId): Model|null
+    public static function getById($importId): ?Model
     {
         return Import::query()
             ->findOrFail($importId);
@@ -207,7 +217,7 @@ class ImportRepository
         return $this->status == Import::FAILED;
     }
 
-    public function incrementTotal(int|null $value = null): self
+    public function incrementTotal(?int $value = null): self
     {
         $this->totalRows += $value ? $value : 1;
 
@@ -217,10 +227,11 @@ class ImportRepository
     public function setTotalRows($value): self
     {
         $this->totalRows = $value;
+
         return $this;
     }
 
-    public function incrementOk(int|null $value = null): self
+    public function incrementOk(?int $value = null): self
     {
         $this->totalOk += $value ? $value : 1;
 
@@ -230,10 +241,11 @@ class ImportRepository
     public function setTotalOk($value): self
     {
         $this->totalOk = $value;
+
         return $this;
     }
 
-    public function incrementFail(int|null $value = null): self
+    public function incrementFail(?int $value = null): self
     {
         $this->totalFail += $value ? $value : 1;
 
@@ -243,6 +255,7 @@ class ImportRepository
     public function setTotalFail($value): self
     {
         $this->totalFail = $value;
+
         return $this;
     }
 
@@ -258,6 +271,7 @@ class ImportRepository
     public function setMessageFail($messages): self
     {
         $this->messageErrors = $messages;
+
         return $this;
     }
 
@@ -273,13 +287,14 @@ class ImportRepository
     public function setMessageOk($messages): self
     {
         $this->messageOk = $messages;
+
         return $this;
     }
 
     public function save(): self
     {
         if ($this->model == null && $this->status == Import::PENDING) {
-            $this->model = new Import();
+            $this->model = new Import;
             $this->model->key = $this->key;
             $this->model->module_name = $this->moduleName;
             $this->model->filename = $this->fileName;

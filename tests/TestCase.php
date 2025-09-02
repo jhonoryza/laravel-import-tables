@@ -2,8 +2,8 @@
 
 namespace Tests;
 
-use Orchestra\Testbench\TestCase as BaseTestCase;
 use Jhonoryza\LaravelImportTables\ServiceProvider;
+use Orchestra\Testbench\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -16,6 +16,6 @@ abstract class TestCase extends BaseTestCase
 
     protected function defineDatabaseMigrations()
     {
-        $this->loadMigrationsFrom(dirname(__DIR__) . '/database/migrations');
+        $this->loadMigrationsFrom(dirname(__DIR__).'/database/migrations');
     }
 }
