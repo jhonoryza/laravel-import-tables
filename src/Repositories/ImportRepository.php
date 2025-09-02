@@ -106,15 +106,6 @@ class ImportRepository
         int $limit = 30
     ): Collection {
         return Import::query()
-            ->select([
-                'id',
-                'module_name',
-                'status',
-                'total_rows',
-                'success_rows',
-                'failed_rows',
-                'created_at'
-            ])
             ->where('module_name', $module ?? 'default')
             ->latest()
             ->when(

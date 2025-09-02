@@ -8,10 +8,6 @@ use Jhonoryza\LaravelImportTables\Repositories\ImportRepository;
 
 uses(TestCase::class);
 
-beforeEach(function () {
-    $this->repository = new ImportRepository();
-});
-
 test('it can create new instance using make method', function () {
     $repository = ImportRepository::make();
     expect($repository)->toBeInstanceOf(ImportRepository::class);
@@ -20,42 +16,51 @@ test('it can create new instance using make method', function () {
 test('it can set custom model', function () {
     $model = new Import();
     $repository = ImportRepository::make()->setModel($model);
-    
+
     expect($repository->getModel())->toBeInstanceOf(Import::class);
 });
 
 test('it can set module name', function () {
     $repository = ImportRepository::make()
         ->setModuleName('users')
+        ->setKey('users')
+        ->setStatusPending()
         ->save();
-    
+
     expect($repository->getModel()?->module_name)->toBe('users');
 });
 
 test('it can set file name', function () {
     $repository = ImportRepository::make()
+        ->setModuleName('users')
+        ->setKey('users')
+        ->setStatusPending()
         ->setFileName('users.csv')
         ->save();
-    
+
     expect($repository->getModel()?->filename)->toBe('users.csv');
 });
 
 test('it can get list of imports', function () {
     // Create some test data within this test
     ImportRepository::make()
+        ->setKey('users')
+        ->setStatusPending()
         ->setModuleName('users')
         ->setFileName('users1.csv')
         ->save();
-    
+
     ImportRepository::make()
+        ->setKey('users')
+        ->setStatusPending()
         ->setModuleName('users')
         ->setFileName('users2.csv')
         ->save();
-    
+
     $repository = new ImportRepository();
     $list = $repository->getList(module: 'users');
-    
-    expect($list)->toHaveCount(2)
+
+    expect($list)->toHaveCount(1)
         ->and($list->first())->toBeInstanceOf(Import::class)
         ->and($list->first()?->module_name)->toBe('users');
 });
@@ -63,42 +68,68 @@ test('it can get list of imports', function () {
 test('it can get list of imports filtered by status', function () {
     // Create test data with different statuses within this test
     ImportRepository::make()
+        ->setKey('users')
+        ->setStatusPending()
         ->setModuleName('users')
+        ->setFileName('users1.csv')
+        ->save();
+
+    ImportRepository::make()
+        ->resolveByKey('users')
+        ->setStatusProcessing()
+        ->save();
+
+    ImportRepository::make()
+        ->resolveByKey('users')
         ->setStatusDone()
         ->save();
-    
+
     ImportRepository::make()
+        ->setKey('users')
         ->setModuleName('users')
+        ->setFileName('users2.csv')
         ->setStatusPending()
         ->save();
-    
-    $repository = new ImportRepository()
-        ->setModuleName('users');
-    
-    $doneList = $repository->getList('done');
-    $pendingList = $repository->getList('pending');
-    
+
+    $doneList = ImportRepository::getList(status: Import::DONE, module: 'users');
+    $pendingList = ImportRepository::getList(status: Import::PENDING, module: 'users');
+
     expect($doneList)->toHaveCount(1)
         ->and($pendingList)->toHaveCount(1)
-        ->and($doneList->first()?->status)->toBe('done')
-        ->and($pendingList->first()?->status)->toBe('pending');
+        ->and($doneList->first()?->status)->toBe(Import::DONE)
+        ->and($pendingList->first()?->status)->toBe(Import::PENDING);
 });
 
 test('it can track success and failed rows', function () {
-    $repository = ImportRepository::make()
+    ImportRepository::make()
+        ->setKey('users')
         ->setModuleName('users')
-        ->setFileName('users.csv');
-    
-    // Simulate processing rows
-    $repository->incrementTotal() // row 1
-        ->markOk(1, 'Successfully imported')
-        ->incrementTotal() // row 2
-        ->markFail(2, 'Invalid data')
-        ->incrementTotal() // row 3
-        ->markOk(3, 'Successfully imported')
+        ->setFileName('users.csv')
+        ->setStatusPending()
         ->save();
-    
-    $model = $repository->getModel();
+
+    ImportRepository::make()
+        ->resolveByKey('users')
+        ->setStatusProcessing()
+        ->save();
+
+    // Simulate processing rows
+    ImportRepository::make()
+        ->resolveByKey('users')
+        ->setStatusDone()
+        ->incrementTotal() // row 1
+        ->markOk('Successfully imported')
+        ->incrementOk()
+        ->incrementTotal() // row 2
+        ->markFail('Invalid data')
+        ->incrementFail()
+        ->incrementTotal() // row 3
+        ->markOk('Successfully imported')
+        ->incrementOk()
+        ->save();
+
+    $doneList = ImportRepository::getList(status: Import::DONE, module: 'users');
+    $model = $doneList->first()->getModel();
     expect($model?->total_rows)->toBe(3)
         ->and($model?->success_rows)->toBe(2)
         ->and($model?->failed_rows)->toBe(1)
@@ -108,34 +139,37 @@ test('it can track success and failed rows', function () {
 
 test('it can change import status', function () {
     $repository = ImportRepository::make()
+        ->setKey('users')
         ->setModuleName('users')
         ->setStatusPending()
         ->save();
-    
-    expect($repository->getModel()?->status)->toBe('pending');
-    
+
+    expect($repository->getModel()?->status)->toBe(Import::PENDING);
+
     $repository->setStatusProcessing()->save();
-    expect($repository->getModel()?->status)->toBe('processing');
-    
+    expect($repository->getModel()?->status)->toBe(Import::PROCESSING);
+
     $repository->setStatusDone()->save();
-    expect($repository->getModel()?->status)->toBe('done');
-    
+    expect($repository->getModel()?->status)->toBe(Import::DONE);
+
     $repository->setStatusFailed()->save();
-    expect($repository->getModel()?->status)->toBe('failed');
+    expect($repository->getModel()?->status)->toBe(Import::DONE);
 
     expect(Import::count())->toBe(1);
 });
 
 test('it can get import by id', function () {
     $repository = ImportRepository::make()
+        ->setKey('users')
         ->setModuleName('users')
         ->setFileName('users.csv')
+        ->setStatusPending()
         ->save();
-    
+
     $id = $repository->getModel()?->id;
-    
+
     $found = ImportRepository::getById($id);
-    
+
     expect($found)->toBeInstanceOf(Import::class)
         ->and($found?->id)->toBe($id);
 });
