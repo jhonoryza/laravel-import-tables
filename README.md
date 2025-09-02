@@ -1,15 +1,6 @@
-<h1 align="center">Laravel Import Tables</h1>
-<p align="center">
-    <a href="https://packagist.org/packages/jhonoryza/laravel-import-tables">
-        <img src="https://poser.pugx.org/jhonoryza/laravel-import-tables/d/total.svg" alt="Total Downloads">
-    </a>
-    <a href="https://packagist.org/packages/jhonoryza/laravel-import-tables">
-        <img src="https://poser.pugx.org/jhonoryza/laravel-import-tables/v/stable.svg" alt="Latest Stable Version">
-    </a>
-    <a href="https://packagist.org/packages/jhonoryza/laravel-import-tables">
-        <img src="https://poser.pugx.org/jhonoryza/laravel-import-tables/license.svg" alt="License">
-    </a>
-</p>
+# Laravel Import Tables
+
+[![Latest Stable Version](http://poser.pugx.org/jhonoryza/laravel-import-tables/v)](https://packagist.org/packages/jhonoryza/laravel-import-tables) [![Total Downloads](http://poser.pugx.org/jhonoryza/laravel-import-tables/downloads)](https://packagist.org/packages/jhonoryza/laravel-import-tables) [![Latest Unstable Version](http://poser.pugx.org/jhonoryza/laravel-import-tables/v/unstable)](https://packagist.org/packages/jhonoryza/laravel-import-tables) [![License](http://poser.pugx.org/jhonoryza/laravel-import-tables/license)](https://packagist.org/packages/jhonoryza/laravel-import-tables)
 
 This package provide ability to track import progress and history
 
